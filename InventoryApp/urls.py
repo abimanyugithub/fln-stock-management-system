@@ -8,4 +8,6 @@ urlpatterns = [
     path('area/create/', views.CreateArea.as_view(), name='area_create'),
     path('htmx/load-regencies/', views.load_regencies, name='htmx_load_regencies'),
     path('htmx/load-districts/', views.load_districts, name='htmx_load_districts'),
+    path('htmx/load-villages/', views.load_villages, name='htmx_load_villages'),
+    path('htmx/load-postal-code/', views.load_postal, name='htmx_load_postal'),
 ]

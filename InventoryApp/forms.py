@@ -1,15 +1,24 @@
 from django import forms
 # from .models import Warehouse, Area, Country, State, City
-from .models import Province, Regency, District, Warehouse, Area
+# from .models import Province, Regency, District, Village, Warehouse, Area
+from .models import Provinsi, KabupatenKota, Kecamatan, KelurahanDesa, Warehouse, Area
 
 class WarehouseForm(forms.ModelForm):
 
-    # get all countries
+    # from kodepos.extended.json
+    province = forms.ModelChoiceField(
+        queryset=Provinsi.objects.all().order_by('name'),
+        label='Province',
+        help_text='Select the province or state (optional).'
+    )
+
+    '''
+    # get all wilayah indonesia
     province = forms.ModelChoiceField(
         queryset=Province.objects.all().order_by('name'),
         label='Province',
         help_text='Select the province or state (optional).'
-    )
+    )'''
 
     '''
     # get all countries
@@ -59,6 +68,7 @@ class WarehouseForm(forms.ModelForm):
             'province',
             'regency',
             'district',
+            'village',
             'postal_code',
             'phone_number',
             'email'
@@ -66,13 +76,6 @@ class WarehouseForm(forms.ModelForm):
 
         # Adding Bootstrap classes to form fields
         widgets = {
-            'code': forms.TextInput(attrs={'class': 'form-control '}),
-            'name': forms.TextInput(attrs={'class': 'form-control '}),
-            'location': forms.TextInput(attrs={'class': 'form-control '}),
-            'capacity': forms.NumberInput(attrs={'class': 'form-control '}),
-            'manager': forms.TextInput(attrs={'class': 'form-control '}),
-            'address_line1': forms.TextInput(attrs={'class': 'form-control '}),
-            'address_line2': forms.TextInput(attrs={'class': 'form-control '}),
             
             '''
             # get all countries
@@ -90,9 +93,7 @@ class WarehouseForm(forms.ModelForm):
             'city': forms.Select(attrs={'id':'id_city'}),
             '''
 
-            'postal_code': forms.TextInput(attrs={'class': 'form-control '}),
-            'phone_number': forms.TextInput(attrs={'class': 'form-control '}),
-            'email': forms.EmailInput(attrs={'class': 'form-control '}),
+
         }
 
         labels = {
@@ -117,6 +118,7 @@ class WarehouseForm(forms.ModelForm):
             'address_line2': 'Enter any additional address information (e.g., suite number) (optional).',
             'regency': 'Select the regency or city (optional).',
             'district': 'Select the district (optional).',
+            'village': 'Select the village (optional).',
             'postal_code': 'Enter the postal or ZIP code (optional).',
             'phone_number': 'Enter a contact phone number for the warehouse (optional).',
             'email': 'Enter a contact email address for the warehouse (optional).',
@@ -127,7 +129,7 @@ class WarehouseForm(forms.ModelForm):
         
         # Iterate through each field and set widget attributes
         for field_name, field in self.fields.items():
-            if 'province' in self.data:
+            '''if 'province' in self.data:
                 try:
                     province_id = int(self.data.get('province'))
                     self.fields['regency'].queryset = Regency.objects.filter(province_id=province_id).order_by('name')
@@ -135,6 +137,7 @@ class WarehouseForm(forms.ModelForm):
                     pass
             elif self.instance.pk:
                 self.fields['regency'].queryset = self.instance.province.regencies.order_by('name')
+            '''
         
             if self.errors.get(field_name):
                 # Add 'is-invalid' class to fields with errors

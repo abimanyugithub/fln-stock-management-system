@@ -4,12 +4,12 @@ from django.urls import reverse_lazy
 from django.views.generic import TemplateView, ListView, CreateView
 from .models import Warehouse, Area
 # from .forms import Country, State, WarehouseForm, AreaForm  # Import your form if needed
-from .forms import Province, Regency, District, WarehouseForm, AreaForm
+# from .forms import Province, Regency, District, Village, WarehouseForm, AreaForm
+from .forms import Provinsi, KabupatenKota, Kecamatan, KelurahanDesa, WarehouseForm, AreaForm
 
 # Create your views here.
 class Dashboard(TemplateView):
     template_name = 'index.html'
-
 
 class ListWarehouse(ListView):
     model = Warehouse
@@ -74,42 +74,65 @@ class CreateWarehouse(TemplateView):
         })
     
 def load_regencies(request):
-    # Get the selected province ID from the query parameters
-    province_id = request.GET.get('province')  # Ensure the query parameter matches the HTMX attribute
-    if not province_id:
-        return HttpResponse('<option value="">No regencies available</option>', content_type='text/html')
+    province_id = request.GET.get('province')
+    regencies = KabupatenKota.objects.filter(provinsi=province_id).order_by('name')
 
-    # Fetch regencies for the selected province
-    regencies = Regency.objects.filter(province_id=province_id).order_by('name')
-
-    # Generate HTML for the options
-    regency_options = ''.join([
+    # Build the HTML for the options
+    options_html = ''.join(
         f'<option value="{regency.id}">{regency.name}</option>'
         for regency in regencies
-    ])
+    )
+    script="""
+        <script>
+            // Clear district and village dropdowns
+            $('#district-dropdown').html('<option value=""></option>');
+            $('#village-dropdown').html('<option value=""></option>');
+        </script>
+        """
 
-    # Return the HTML response with appropriate content type
-    return HttpResponse(regency_options or '<option value="">No regencies available</option>', content_type='text/html')
-
+    return HttpResponse(options_html + script)
 
 def load_districts(request):
-    # Get the selected regency ID from the query parameters
-    regency_id = request.GET.get('regency')  # Ensure the query parameter matches the HTMX attribute
-    if not regency_id:
-        return HttpResponse('<option value="">No districts available</option>', content_type='text/html')
-
-    # Fetch districts for the selected regency
-    districts = District.objects.filter(regency_id=regency_id).order_by('name')
-
-    # Generate HTML for the options
-    district_options = ''.join([
+    regency_id = request.GET.get('regency')
+    districts = Kecamatan.objects.filter(kabupaten_kota=regency_id).order_by('name')
+    
+    # Build the HTML for the options
+    options_html = ''.join(
         f'<option value="{district.id}">{district.name}</option>'
         for district in districts
-    ])
+    )
+    script="""
+        <script>
+            // Clear village dropdowns
+            $('#village-dropdown').html('<option value=""></option>');
+        </script>
+        """
 
-    # Return the HTML response with appropriate content type
-    return HttpResponse(district_options or '<option value="">No districts available</option>', content_type='text/html')
+    return HttpResponse(options_html + script)
 
+def load_villages(request):
+    district_id = request.GET.get('district')
+    villages = KelurahanDesa.objects.filter(kecamatan=district_id).order_by('name')
+    
+    # Build the HTML for the options
+    options_html = ''.join(
+        f'<option value="{village.id}">{village.name}</option>'
+        for village in villages
+    )
+
+    return HttpResponse(options_html)
+
+def load_postal(request):
+    village_id = request.GET.get('village')
+    postal_codes = KelurahanDesa.objects.get(id=village_id)
+    postal_code = postal_codes.postal_code
+    
+    # Assuming field_name is provided in some way; ensure it's safe for HTML
+    field_name = "{{ field.html_name }}"  # This needs to be managed properly if it's a Django template
+
+    # Safely format the postal code and field name into HTML
+    html = f'<input type="text" class="form-control" name="{field_name}" id="portal-input" value="{postal_code}"/>'
+    return HttpResponse(html)
 
 '''def load_cities(request):
     # Extract the 'state_id' parameter from the request

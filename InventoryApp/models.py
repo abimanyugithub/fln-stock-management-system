@@ -66,6 +66,8 @@ class City(models.Model):
     def __str__(self):
         return self.name
 '''
+
+'''
 # get all indonesia https://github.com/yusufsyaifudin/wilayah-indonesia
 class Province(models.Model):
     id = models.CharField(max_length=10, primary_key=True)
@@ -107,6 +109,39 @@ class Village(models.Model):
     longitude = models.DecimalField(max_digits=9, decimal_places=6, blank=True, null=True)
 
     def __str__(self):
+        return self.name'''
+
+class Provinsi(models.Model):
+    name = models.CharField(max_length=255, unique=True)
+    id_code = models.CharField(max_length=20, unique=True)
+
+    def __str__(self):
+        return self.name
+
+class KabupatenKota(models.Model):
+    provinsi = models.ForeignKey(Provinsi, on_delete=models.CASCADE, related_name='kabupaten_kota')
+    name = models.CharField(max_length=255)
+    id_code = models.CharField(max_length=20, unique=True)
+    type = models.CharField(max_length=50)  # e.g., 'Kabupaten' or 'Kota'
+
+    def __str__(self):
+        return self.name
+
+class Kecamatan(models.Model):
+    kabupaten_kota = models.ForeignKey(KabupatenKota, on_delete=models.CASCADE, related_name='kecamatan')
+    name = models.CharField(max_length=255)
+    id_code = models.CharField(max_length=20, unique=True)
+
+    def __str__(self):
+        return self.name
+
+class KelurahanDesa(models.Model):
+    kecamatan = models.ForeignKey(Kecamatan, on_delete=models.CASCADE, related_name='kelurahan_desa')
+    name = models.CharField(max_length=255)
+    id_code = models.CharField(max_length=20, unique=True)
+    postal_code = models.CharField(max_length=10)
+
+    def __str__(self):
         return self.name
 
 class Warehouse(models.Model):
@@ -121,10 +156,16 @@ class Warehouse(models.Model):
     active = models.BooleanField(default=True)
     address_line1 = models.CharField(max_length=255, blank=True, null=True, verbose_name='Alamat Baris 1')
     address_line2 = models.CharField(max_length=255, blank=True, null=True, verbose_name='Alamat Baris 2')
+    province = models.ForeignKey(Provinsi, on_delete=models.CASCADE, blank=True, null=True)
+    regency = models.ForeignKey(KabupatenKota, on_delete=models.CASCADE, blank=True, null=True)
+    district = models.ForeignKey(Kecamatan, on_delete=models.CASCADE, blank=True, null=True)
+    village = models.ForeignKey(KelurahanDesa, on_delete=models.CASCADE, blank=True, null=True)
+    '''
     province = models.ForeignKey(Province, on_delete=models.CASCADE, blank=True, null=True)
     regency = models.ForeignKey(Regency, on_delete=models.CASCADE, blank=True, null=True)
     district = models.ForeignKey(District, on_delete=models.CASCADE, blank=True, null=True)
     village = models.ForeignKey(Village, on_delete=models.CASCADE, blank=True, null=True)
+    '''
 
     '''
     # get all countries

@@ -89,9 +89,21 @@
                                   <!-- Options will be dynamically loaded here by HTMX -->
                               </select>
                           {% elif field.name == 'district' %}
-                              <select class="form-control" id="district-dropdown" name="{{ field.html_name }}">
+                              <select class="form-control" id="district-dropdown" name="{{ field.html_name }}"
+                                      hx-get="{% url 'htmx_load_villages' %}"
+                                      hx-target="#village-dropdown"
+                                      hx-trigger="change">
                                   <!-- Options will be dynamically loaded here by HTMX -->
                               </select>
+                          {% elif field.name == 'village' %}
+                              <select class="form-control" id="village-dropdown" name="{{ field.html_name }}"
+                                      hx-get="{% url 'htmx_load_postal' %}"
+                                      hx-target="#postal-input"
+                                      hx-trigger="change">
+                                  <!-- Options will be dynamically loaded here by HTMX -->
+                              </select>
+                          {% elif field.name == 'postal_code' %}
+                            <div id="postal-input"> <input type="text" class="form-control"></input> </div>
                           {% else %}
                               {{ field }}
                           {% endif %}
