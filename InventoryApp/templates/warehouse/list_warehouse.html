@@ -54,8 +54,8 @@
                 <table id="datatable-responsive" class="table table-striped table-bordered dt-responsive nowrap" cellspacing="0" width="100%">
                   <thead>
                     <tr>
-                      {% for header in table_headers %}
-                      <th>{{ header }}</th>  <!-- Membuat header tabel dinamis -->
+                      {% for key, value in fields.items %}
+                        <th>{{ value }}</th>
                       {% endfor %}
                     </tr>
                   </thead>

@@ -12,7 +12,7 @@ from .forms import Provinsi, KabupatenKota, Kecamatan, KelurahanDesa, WarehouseF
 class Dashboard(TemplateView):
     template_name = 'index.html'
 
-class ListWarehouse(ListView):
+class WarehouseListView(ListView):
     model = Warehouse
     template_name = 'warehouse/list_warehouse.html'
     context_object_name = 'wh'
@@ -21,7 +21,13 @@ class ListWarehouse(ListView):
         # Memanggil implementasi dasar untuk mendapatkan context yang ada
         context = super().get_context_data(**kwargs)
         # Menambahkan header tabel dinamis ke dalam context
-        context['table_headers'] = ['Name', 'Capacity', 'Manager', 'Inventory Count', 'Created at', 'Updated at']
+        context['fields'] = {
+            'code': 'Warehouse Code',
+            'name': 'Warehouse Name',
+            'location': 'Location',
+            'phone_number': 'Phone Number',
+            'email': 'Email Address',
+            'manager': 'Manager'}
         return context
     
 def get_kabupaten_kota(request):
@@ -45,7 +51,7 @@ def get_kelurahan_desa(request):
     kelurahan_desa = KelurahanDesa.objects.filter(kecamatan_id=kecamatan_id)
     options = '<option value="">Pilih Kelurahan/Desa</option>'
     for item in kelurahan_desa:
-        options += f'<option value="{item.id}">{item.name} - {item.postal_code}</option>'
+        options += f'<option value="{item.id}">{item.name}, {item.postal_code}</option>'
     return HttpResponse(options)
 
 class WarehouseCreateView(CreateView):
@@ -61,7 +67,7 @@ class WarehouseCreateView(CreateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         # Initialize the form and add it to the context
-        context['disable_form'] = ['province', 'regency', 'district', 'village']
+        context['disable_fields'] = ['province', 'regency', 'district', 'village']
         return context
     
 class CreateArea(CreateView):

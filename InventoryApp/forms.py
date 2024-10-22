@@ -30,7 +30,7 @@ class WarehouseForm(forms.ModelForm):
 
     province = forms.ModelChoiceField(
         queryset=Provinsi.objects.all().order_by('name'),
-        label='Province',
+        label='Province *',
         help_text='Select the province or state (optional).'
     )
 
@@ -56,24 +56,27 @@ class WarehouseForm(forms.ModelForm):
             'code': 'Warehouse Code *',
             'name': 'Warehouse Name *',
             'location': 'Location *',
-            'capacity': 'Capacity *',
             'address_line1': 'Address Line 1',
             'address_line2': 'Address Line 2',
             'phone_number': 'Phone Number',
             'email': 'Email Address',
+            'province': 'Province',
+            'regency': 'Regency *',
+            'district': 'District *',
+            'village': 'Village *',
         }
 
         help_texts = {
             'code': 'A unique code for this warehouse (up to 20 characters).',
             'name': 'Enter the full name of the warehouse.',
             'location': 'Provide a general description of the location within or near the warehouse, e.g., "Zone A".',
-            'capacity': 'Enter the maximum storage capacity of this warehouse, e.g., in cubic meters (m³).',
+            'capacity': 'Enter the maximum storage capacity of this warehouse, e.g., in cubic meters (m³) (optional).',
             'manager': 'Enter the full name of the warehouse manager (optional).',
             'address_line1': 'Enter the primary street address (optional).',
             'address_line2': 'Enter any additional address information (e.g., suite number) (optional).',
-            'regency': 'Select the regency or city (optional).',
-            'district': 'Select the district (optional).',
-            'village': 'Select the village (optional).',
+            'regency': 'Select the regency or city.',
+            'district': 'Select the district.',
+            'village': 'Select the village.',
             'phone_number': 'Enter a contact phone number for the warehouse (optional).',
             'email': 'Enter a contact email address for the warehouse (optional).',
         }

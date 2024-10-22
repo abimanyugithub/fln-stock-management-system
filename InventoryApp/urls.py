@@ -3,7 +3,7 @@ from . import views
 
 urlpatterns = [
     path('', views.Dashboard.as_view(), name='dashboard_view'),
-    path('warehouse/', views.ListWarehouse.as_view(), name='warehouse_view'),
+    path('warehouse/', views.WarehouseListView.as_view(), name='warehouse_list'),
     path('warehouse/create/', views.WarehouseCreateView.as_view(), name='warehouse_create'),
     path('area/create/', views.CreateArea.as_view(), name='area_create'),
     #path('htmx/load-regencies/', views.load_regencies, name='htmx_load_regencies'),

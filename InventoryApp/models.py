@@ -152,7 +152,7 @@ class Warehouse(models.Model):
     code = models.CharField(max_length=20, unique=True)  # unique=True memastikan bahwa tidak ada dua entri
     name = models.CharField(max_length=255) 
     location = models.CharField(max_length=255)
-    capacity = models.PositiveIntegerField() # Kapasitas maksimum warehouse
+    capacity = models.PositiveIntegerField(blank=True, null=True) # Kapasitas maksimum warehouse
     manager = models.CharField(max_length=255, blank=True, null=True)  # Nama manajer gudang
     current_inventory = models.PositiveIntegerField(default=0)  # Jumlah inventaris saat ini
     created_at = models.DateTimeField(auto_now_add=True)

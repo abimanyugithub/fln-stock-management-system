@@ -60,7 +60,7 @@
                         <div class="col-md-6 col-sm-6 col-xs-12">
                       {% endif %}
                       <div class="form-group">
-                        {% if field.name not in disable_form %}
+                        {% if field.name not in disable_fields %}
                           {{ field.label_tag }}
                           {{ field }}
                         {% endif %}
