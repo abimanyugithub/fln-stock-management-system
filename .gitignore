@@ -50,12 +50,13 @@ htmlcov/
 dmypy.json
 
 # Django migrations (optional)
-AndonMachineApp/migrations/*.pyc
-AndonMachineApp/migrations/*.pyo
-AndonMachineApp/__pycache__/
-AndonMachineApp/migrations/__pycache__/
-AndonMachineApp/templatetags/__pycache__/
-DowntimeLogger/__pycache__/
+InventoryApp/migrations/*.pyc
+InventoryApp/migrations/*.pyo
+InventoryApp/__pycache__/
+InventoryApp/migrations/__pycache__/
+InventoryApp/templatetags/__pycache__/
+InventoryApp/management/commands/__pycache__/
+WMSProject/__pycache__/
 
 # Jupyter Notebook
 .ipynb_checkpoints
