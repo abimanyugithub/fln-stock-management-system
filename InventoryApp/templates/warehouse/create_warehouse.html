@@ -52,77 +52,64 @@
                 <form method="post" data-parsley-validate class="form-horizontal control-label" action="{% url 'warehouse_create' %}"> 
                   {% csrf_token %}
                   <div class="row">
-                    <!-- Start the first column -->
                     <div class="col-md-6 col-sm-6 col-xs-12">
-                    {% for field in warehouse_form %}
+                    {% for field in form %}
                       {% if forloop.counter0|divisibleby:7 and not forloop.first %}
                         <!-- Start a new column for every second field -->
                         </div>
                         <div class="col-md-6 col-sm-6 col-xs-12">
                       {% endif %}
-                      
                       <div class="form-group">
-                        <label for="{{ field.id_for_label }}" class="control-label col-md-3 col-sm-3 col-xs-12">{{ field.label }}</label>
-                        <div class="col-md-9 col-sm-9 col-xs-12">
-
-                          {% if field.name == 'province' %}
-                            <select class="form-control" id="{{ field.id_for_label }}" name="{{ field.html_name }}"
-                                    hx-get="{% url 'htmx_load_regencies' %}"
-                                    hx-target="#regency-dropdown"
-                                    hx-trigger="change">
-                                {% comment %}{% for province in provinces %}
-                                <option value="{{ province.id }}" {% if province.id == field.value %}selected{% endif %}>
-                                    {{ province.name }}
-                                </option>
-                                {% empty %}
-                                    <option value="">No provinces available</option>
-                                {% endfor %}{% endcomment %}
-                                {% for option in field.field.choices %}
-                                    <option value="{{ option.0 }}" {% if option.0 == field.value %}selected{% endif %}>{{ option.1 }}</option>
-                                {% endfor %}
-                              </select>
-                          {% elif field.name == 'regency' %}
-                              <select class="form-control" id="regency-dropdown" name="{{ field.html_name }}"
-                                      hx-get="{% url 'htmx_load_districts' %}"
-                                      hx-target="#district-dropdown"
-                                      hx-trigger="change">
-                                  <!-- Options will be dynamically loaded here by HTMX -->
-                              </select>
-                          {% elif field.name == 'district' %}
-                              <select class="form-control" id="district-dropdown" name="{{ field.html_name }}"
-                                      hx-get="{% url 'htmx_load_villages' %}"
-                                      hx-target="#village-dropdown"
-                                      hx-trigger="change">
-                                  <!-- Options will be dynamically loaded here by HTMX -->
-                              </select>
-                          {% elif field.name == 'village' %}
-                              <select class="form-control" id="village-dropdown" name="{{ field.html_name }}"
-                                      hx-get="{% url 'htmx_load_postal' %}"
-                                      hx-target="#postal-input"
-                                      hx-trigger="change">
-                                  <!-- Options will be dynamically loaded here by HTMX -->
-                              </select>
-                          {% elif field.name == 'postal_code' %}
-                            <div id="postal-input"> <input type="text" class="form-control"></input> </div>
-                          {% else %}
-                              {{ field }}
-                          {% endif %}
-
-                          {% if field.errors %}
-                            <div class="red">
-                              {% for error in field.errors %}
-                                <p>{{ error }}</p>
-                              {% endfor %}
-                            </div>
-                          {% endif %}
-                          {% if field.help_text %}
-                            <small>{{ field.help_text }}</small>
-                          {% endif %}
-                        </div>          
+                        {% if field.name not in disable_form %}
+                          {{ field.label_tag }}
+                          {{ field }}
+                        {% endif %}
+                        {% if field.name == 'province' %}
+                          {{ field.label_tag }}
+                          <select class="form-control" 
+                            id="{{ form.province.id_for_label }}" 
+                            name="{{ field.name }}"
+                            hx-get="{% url 'get_kabupaten_kota' %}" 
+                            hx-target="#regency-dropdown" 
+                            hx-trigger="change" required>
+                            <option value="">Select Province</option>
+                            {% for provinsi in form.province.field.queryset %}
+                              <option value="{{ provinsi.id }}">{{ provinsi.name }}</option>
+                            {% endfor %}
+                          </select>
+                        {% elif field.name == 'regency' %}
+                        {{ field.label_tag }}
+                          <select class="form-control" id="regency-dropdown" name="{{ field.name }}" 
+                            hx-get="{% url 'get_kecamatan' %}" 
+                            hx-target="#district-dropdown" 
+                            hx-trigger="change" required>
+                            <option value="">Select Regency/City</option>
+                            <!-- Options akan diisi oleh HTMX -->
+                          </select>
+                        {% elif field.name == 'district' %}
+                        {{ field.label_tag }}
+                          <select class="form-control" id="district-dropdown" name="{{ field.name }}" 
+                            hx-get="{% url 'get_kelurahan_desa' %}" 
+                            hx-target="#village-dropdown" 
+                            hx-trigger="change" required>
+                            <option value="">Select District</option>
+                            <!-- Options akan diisi oleh HTMX -->
+                          </select>
+                        {% elif field.name == 'village' %}
+                        {{ field.label_tag }}
+                          <select class="form-control" id="village-dropdown" name="{{ field.name }}" required>
+                            <option value="">Select Village/Subdistrict</option>
+                            <!-- Options akan diisi oleh HTMX -->
+                          </select>
+                        {% endif %}
+                        {% if field.help_text %}
+                          <small>{{ field.help_text }}</small>
+                        {% endif %}
                       </div>
                     {% endfor %}
-                    </div> <!-- Close the last column -->
+                    </div>
                   </div>
+
                   <!-- Place the visual separator where needed -->
                   <div class="ln_solid"></div>
                   <div class="form-group">
@@ -136,51 +123,6 @@
             </div>
           </div>
         </div>
-
-
-        <div class="row">
-          <div class="col-md-12 col-sm-12 col-xs-12">
-            <div class="x_panel">
-              <div class="x_title">
-                <h2>Area<small>Create</small></h2>
-                <ul class="nav navbar-right panel_toolbox">
-                <li><a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
-                </li>
-                <li class="dropdown">
-                    <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false"><i class="fa fa-wrench"></i></a>
-                    <ul class="dropdown-menu" role="menu">
-                    <li><a href="{% url 'warehouse_create' %}">Create New</a>
-                    </li>
-                    </ul>
-                </li>
-                <li><a class="close-link"><i class="fa fa-close"></i></a>
-                </li>
-                </ul>
-                <div class="clearfix"></div>
-              </div>
-              <div class="x_content">
-                <form method="post" data-parsley-validate class="form-horizontal form-label-left" action="{% url 'area_create' %}"> 
-                  {% csrf_token %}
-                  {% for field in area_form %}
-                  <div class="form-group">
-                    <label for="{{ field.id_for_label }}" class="control-label col-md-3 col-sm-3 col-xs-12">{{ field.label }}</label>
-                    <div class="col-md-6 col-sm-6 col-xs-12">{{field}}</div>          
-                  </div>
-                  {% endfor %}
-                  <div class="ln_solid"></div>
-                  <div class="form-group">
-                    <div class="col-md-6 col-sm-6 col-xs-12 col-md-offset-3">
-                      <button class="btn btn-primary" type="reset">Reset</button>
-                      <button type="submit" class="btn btn-success" name="submit_area_form">Submit</button>
-                    </div>
-                  </div>
-                </form>
-              </div>
-            </div>
-          </div>
-        </div>
-        
-
       </div>
     </div>
 </div>
@@ -204,4 +146,36 @@
   <script src="{% static 'vendors/jszip/dist/jszip.min.js' %}"></script>
   <script src="{% static 'vendors/pdfmake/build/pdfmake.min.js' %}"></script>
   <script src="{% static 'vendors/pdfmake/build/vfs_fonts.js' %}"></script>
+  <script>
+    // Mengupdate target untuk kabupaten/kota dan kecamatan saat dipilih
+    document.getElementById('province').addEventListener('change', function() {
+        var provinceId = this.value;
+        if (provinceId) {
+            var url = '/kabupaten-kota/' + provinceId + '/';
+            this.setAttribute('hx-get', url);
+        } else {
+            this.removeAttribute('hx-get');
+        }
+    });
+
+    document.getElementById('regency').addEventListener('change', function() {
+        var regencyId = this.value;
+        if (regencyId) {
+            var url = '/kecamatan/' + regencyId + '/';
+            this.setAttribute('hx-get', url);
+        } else {
+            this.removeAttribute('hx-get');
+        }
+    });
+
+    document.getElementById('district').addEventListener('change', function() {
+        var districtId = this.value;
+        if (districtId) {
+            var url = '/kelurahan-desa/' + districtId + '/';
+            this.setAttribute('hx-get', url);
+        } else {
+            this.removeAttribute('hx-get');
+        }
+    });
+</script>
 {% endblock javascripts %}

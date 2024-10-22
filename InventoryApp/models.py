@@ -118,6 +118,7 @@ class Provinsi(models.Model):
     def __str__(self):
         return self.name
 
+
 class KabupatenKota(models.Model):
     provinsi = models.ForeignKey(Provinsi, on_delete=models.CASCADE, related_name='kabupaten_kota')
     name = models.CharField(max_length=255)
@@ -127,6 +128,7 @@ class KabupatenKota(models.Model):
     def __str__(self):
         return self.name
 
+
 class Kecamatan(models.Model):
     kabupaten_kota = models.ForeignKey(KabupatenKota, on_delete=models.CASCADE, related_name='kecamatan')
     name = models.CharField(max_length=255)
@@ -134,6 +136,7 @@ class Kecamatan(models.Model):
 
     def __str__(self):
         return self.name
+    
 
 class KelurahanDesa(models.Model):
     kecamatan = models.ForeignKey(Kecamatan, on_delete=models.CASCADE, related_name='kelurahan_desa')
@@ -143,6 +146,7 @@ class KelurahanDesa(models.Model):
 
     def __str__(self):
         return self.name
+
 
 class Warehouse(models.Model):
     code = models.CharField(max_length=20, unique=True)  # unique=True memastikan bahwa tidak ada dua entri
@@ -157,9 +161,10 @@ class Warehouse(models.Model):
     address_line1 = models.CharField(max_length=255, blank=True, null=True, verbose_name='Alamat Baris 1')
     address_line2 = models.CharField(max_length=255, blank=True, null=True, verbose_name='Alamat Baris 2')
     province = models.ForeignKey(Provinsi, on_delete=models.CASCADE, blank=True, null=True)
-    regency = models.ForeignKey(KabupatenKota, on_delete=models.CASCADE, blank=True, null=True)
-    district = models.ForeignKey(Kecamatan, on_delete=models.CASCADE, blank=True, null=True)
-    village = models.ForeignKey(KelurahanDesa, on_delete=models.CASCADE, blank=True, null=True)
+    regency = models.ForeignKey(KabupatenKota, on_delete=models.CASCADE)
+    district = models.ForeignKey(Kecamatan, on_delete=models.CASCADE)
+    village = models.ForeignKey(KelurahanDesa, on_delete=models.CASCADE)
+
     '''
     province = models.ForeignKey(Province, on_delete=models.CASCADE, blank=True, null=True)
     regency = models.ForeignKey(Regency, on_delete=models.CASCADE, blank=True, null=True)
@@ -188,7 +193,7 @@ class Warehouse(models.Model):
         blank=True,  # Set to False if the phone number is required
         null=True    # Set to False if the phone number cannot be null
     )
-    postal_code = models.CharField(
+    '''postal_code = models.CharField(
         max_length=10,  # Adjust the length as needed
         validators=[
             RegexValidator(
@@ -199,7 +204,7 @@ class Warehouse(models.Model):
         blank=True,  # Set to False if the postal code is required
         null=True    # Set to False if the postal code cannot be null
     )
-
+    '''
     def __str__(self):
         return self.name
     

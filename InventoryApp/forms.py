@@ -3,60 +3,39 @@ from django import forms
 # from .models import Province, Regency, District, Village, Warehouse, Area
 from .models import Provinsi, KabupatenKota, Kecamatan, KelurahanDesa, Warehouse, Area
 
+'''
+class WarehouseForm(forms.ModelForm):
+    class Meta:
+        model = Warehouse
+        fields = [
+            'code', 'name', 'location', 'capacity', 'manager', 
+            'current_inventory', 'address_line1', 'address_line2', 
+            'province', 'regency', 'district', 'village', 
+            'email', 'phone_number'
+        ]
+        widgets = {
+            'code': forms.TextInput(attrs={'required': True}),
+            'name': forms.TextInput(attrs={'required': True}),
+            'location': forms.TextInput(attrs={'required': True}),
+            'capacity': forms.NumberInput(attrs={'required': True}),
+            'current_inventory': forms.NumberInput(attrs={'required': True, 'value': 0}),
+            'address_line1': forms.TextInput(attrs={'placeholder': 'Alamat Baris 1'}),
+            'address_line2': forms.TextInput(attrs={'placeholder': 'Alamat Baris 2'}),
+            'email': forms.EmailInput(attrs={'placeholder': 'Alamat Email'}),
+            'phone_number': forms.TextInput(attrs={'placeholder': 'Nomor Telepon'}),
+        }
+'''
+
 class WarehouseForm(forms.ModelForm):
 
-    # from kodepos.extended.json
     province = forms.ModelChoiceField(
         queryset=Provinsi.objects.all().order_by('name'),
         label='Province',
         help_text='Select the province or state (optional).'
     )
 
-    '''
-    # get all wilayah indonesia
-    province = forms.ModelChoiceField(
-        queryset=Province.objects.all().order_by('name'),
-        label='Province',
-        help_text='Select the province or state (optional).'
-    )'''
-
-    '''
-    # get all countries
-    country = forms.ModelChoiceField(
-        queryset=Country.objects.all().order_by('name'),
-        label='Country'
-    )
-    state = forms.ModelChoiceField(
-        queryset=State.objects.none(),
-        label='State'
-    )
-    city = forms.ModelChoiceField(
-        queryset=State.objects.none(),
-        label='City'
-    )
-    '''
     class Meta:
         model = Warehouse
-
-        '''
-        # get all countries
-        fields = [
-            'code',
-            'name',
-            'location',
-            'capacity',
-            'manager',
-            'address_line1',
-            'address_line2',
-            'country',
-            'state',
-            'city',
-            'postal_code',
-            'phone_number',
-            'email'
-        ]
-        '''
-
         fields = [
             'code',
             'name',
@@ -69,32 +48,9 @@ class WarehouseForm(forms.ModelForm):
             'regency',
             'district',
             'village',
-            'postal_code',
             'phone_number',
             'email'
         ]
-
-        # Adding Bootstrap classes to form fields
-        widgets = {
-            
-            '''
-            # get all countries
-            'country': forms.Select(attrs={
-                'hx-get': "{% url 'htmx_load_states' %}",
-                'hx-target': '#id_state',
-                'hx-trigger': 'change'
-            }),
-            'state': forms.Select(attrs={
-                'id': 'id_state',  # Ensure this ID is consistent with the HTMX target
-                'hx-get': "{% url 'htmx_load_cities' %}",
-                'hx-target': '#id_city',
-                'hx-trigger': 'change'
-            }),
-            'city': forms.Select(attrs={'id':'id_city'}),
-            '''
-
-
-        }
 
         labels = {
             'code': 'Warehouse Code *',
@@ -103,7 +59,6 @@ class WarehouseForm(forms.ModelForm):
             'capacity': 'Capacity *',
             'address_line1': 'Address Line 1',
             'address_line2': 'Address Line 2',
-            'postal_code': 'Postal Code',
             'phone_number': 'Phone Number',
             'email': 'Email Address',
         }
@@ -119,7 +74,6 @@ class WarehouseForm(forms.ModelForm):
             'regency': 'Select the regency or city (optional).',
             'district': 'Select the district (optional).',
             'village': 'Select the village (optional).',
-            'postal_code': 'Enter the postal or ZIP code (optional).',
             'phone_number': 'Enter a contact phone number for the warehouse (optional).',
             'email': 'Enter a contact email address for the warehouse (optional).',
         }
@@ -129,15 +83,6 @@ class WarehouseForm(forms.ModelForm):
         
         # Iterate through each field and set widget attributes
         for field_name, field in self.fields.items():
-            '''if 'province' in self.data:
-                try:
-                    province_id = int(self.data.get('province'))
-                    self.fields['regency'].queryset = Regency.objects.filter(province_id=province_id).order_by('name')
-                except (ValueError, TypeError):
-                    pass
-            elif self.instance.pk:
-                self.fields['regency'].queryset = self.instance.province.regencies.order_by('name')
-            '''
         
             if self.errors.get(field_name):
                 # Add 'is-invalid' class to fields with errors
@@ -149,6 +94,27 @@ class WarehouseForm(forms.ModelForm):
 
             # Optionally, add other attributes like autocomplete="off"
             field.widget.attrs.update({'autocomplete': 'off'})
+
+
+class ProvinsiForm(forms.ModelForm):
+    class Meta:
+        model = Provinsi
+        fields = ['name', 'id_code']
+
+class KabupatenKotaForm(forms.ModelForm):
+    class Meta:
+        model = KabupatenKota
+        fields = ['provinsi', 'name', 'id_code', 'type']
+
+class KecamatanForm(forms.ModelForm):
+    class Meta:
+        model = Kecamatan
+        fields = ['kabupaten_kota', 'name', 'id_code']
+
+class KelurahanDesaForm(forms.ModelForm):
+    class Meta:
+        model = KelurahanDesa
+        fields = ['kecamatan', 'name', 'id_code', 'postal_code']
 
 class AreaForm(forms.ModelForm):
     warehouse = forms.ModelChoiceField(
