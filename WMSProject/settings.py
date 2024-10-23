@@ -64,6 +64,9 @@ TEMPLATES = [
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
             ],
+            'libraries': { #   masukan InventoryApp/templatetags/custom_filters.py sebagai library
+                'custom_filters': 'InventoryApp.templatetags.custom_filters'
+            }
         },
     },
 ]

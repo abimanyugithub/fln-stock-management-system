@@ -2,14 +2,12 @@
 {% load static %}
 {% block title %} General Elements {% endblock title %}
 
-{% comment %}
 {% block stylesheets %}
   {{ block.super }}
   <link href="/static/vendors/pnotify/dist/pnotify.css" rel="stylesheet">
   <link href="/static/vendors/pnotify/dist/pnotify.buttons.css" rel="stylesheet">
   <link href="/static/vendors/pnotify/dist/pnotify.nonblock.css" rel="stylesheet">
 {% endblock stylesheets %}
-{% endcomment %}
 
 {% block content %}
   <div class="right_col" role="main">
@@ -34,7 +32,7 @@
           <div class="col-md-12 col-sm-12 col-xs-12">
             <div class="x_panel">
               <div class="x_title">
-                <h2>Warehouse<small>Create</small></h2>
+                <h2>Warehouse<small>Update</small></h2>
                 <ul class="nav navbar-right panel_toolbox">
                 <li><a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
                 </li>
@@ -76,7 +74,7 @@
                             hx-trigger="change" required>
                             <option value="">Select Province</option>
                             {% for provinsi in form.province.field.queryset %}
-                              <option value="{{ provinsi.id }}">{{ provinsi.name }}</option>
+                              <option value="{{ provinsi.id }}" {% if provinsi.id == form.instance.province.id %}selected{% endif %}>{{ provinsi.name }}</option>
                             {% endfor %}
                           </select>
                         {% elif field.name == 'regency' %}
@@ -86,7 +84,12 @@
                             hx-target="#district-dropdown" 
                             hx-trigger="change" required>
                             <option value="">Select Regency/City</option>
-                            <!-- Options akan diisi oleh HTMX -->
+                            {% for regency in form.regency.field.queryset %}
+                              <option value="{{ regency.id }}" {% if regency.id == form.instance.regency.id %}selected{% endif %}>
+                                {{ regency.name }}
+                              </option>
+                            {% endfor %}
+                        <!-- Options akan diisi oleh HTMX -->
                           </select>
                         {% elif field.name == 'district' %}
                         {{ field.label_tag }}
@@ -95,12 +98,22 @@
                             hx-target="#village-dropdown" 
                             hx-trigger="change" required>
                             <option value="">Select District</option>
+                            {% for district in form.district.field.queryset %}
+                              <option value="{{ district.id }}" {% if district.id == form.instance.district.id %}selected{% endif %}>
+                                {{ district.name }}
+                              </option>
+                            {% endfor %}
                             <!-- Options akan diisi oleh HTMX -->
                           </select>
                         {% elif field.name == 'village' %}
                         {{ field.label_tag }}
                           <select class="form-control" id="village-dropdown" name="{{ field.name }}" required>
                             <option value="">Select Village/Subdistrict</option>
+                            {% for village in form.village.field.queryset %}
+                              <option value="{{ village.id }}" {% if village.id == form.instance.village.id %}selected{% endif %}>
+                                {{ village.name }}
+                              </option>
+                            {% endfor %}
                             <!-- Options akan diisi oleh HTMX -->
                           </select>
                         {% endif %}

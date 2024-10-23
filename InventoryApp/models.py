@@ -1,116 +1,9 @@
+import uuid
 from django.db import models
 from django.core.validators import RegexValidator
+from django.forms import ValidationError
 
 # Create your models here.
-'''
-# get all countries https://github.com/dr5hn/countries-states-cities-database
-class Timezone(models.Model):
-    zone_name = models.CharField(max_length=255)
-    gmt_offset = models.IntegerField()
-    gmt_offset_name = models.CharField(max_length=50)
-    abbreviation = models.CharField(max_length=10)
-    tz_name = models.CharField(max_length=100)
-
-    def __str__(self):
-        return self.zone_name
-
-class Country(models.Model):
-    id = models.IntegerField(primary_key=True)
-    name = models.CharField(max_length=255)
-    iso3 = models.CharField(max_length=3)
-    iso2 = models.CharField(max_length=2)
-    numeric_code = models.CharField(max_length=3)
-    phone_code = models.CharField(max_length=15)
-    capital = models.CharField(max_length=255)
-    currency = models.CharField(max_length=10)
-    currency_name = models.CharField(max_length=255)
-    currency_symbol = models.CharField(max_length=10)
-    tld = models.CharField(max_length=10)
-    native = models.CharField(max_length=255,blank=True, null=True)
-    region = models.CharField(max_length=50)
-    region_id = models.CharField(max_length=10, blank=True, null=True)
-    subregion = models.CharField(max_length=50)
-    subregion_id = models.CharField(max_length=10, blank=True, null=True)
-    nationality = models.CharField(max_length=50)
-    timezones = models.ManyToManyField(Timezone)
-
-    def __str__(self):
-        return self.name
-    
-class State(models.Model):
-    id = models.IntegerField(primary_key=True)
-    name = models.CharField(max_length=255)
-    country = models.ForeignKey(Country, on_delete=models.CASCADE, related_name='states')
-    country_code = models.CharField(max_length=3)
-    country_name = models.CharField(max_length=255)
-    state_code = models.CharField(max_length=10)
-    type = models.CharField(max_length=50, null=True, blank=True)
-    latitude = models.DecimalField(max_digits=9, decimal_places=6, blank=True, null=True)
-    longitude = models.DecimalField(max_digits=9, decimal_places=6, blank=True, null=True)
-
-    def __str__(self):
-        return f'{self.name} ({self.country_name})'
-    
-class City(models.Model):
-    state = models.ForeignKey(State, on_delete=models.CASCADE)
-    name = models.CharField(max_length=100)
-    latitude = models.CharField(max_length=15, blank=True, null=True)
-    longitude = models.CharField(max_length=15, blank=True, null=True)
-    # Optional fields
-    state_code = models.CharField(max_length=10, blank=True, null=True)
-    state_name = models.CharField(max_length=100, blank=True, null=True)
-    country_code = models.CharField(max_length=3, blank=True, null=True)
-    country_name = models.CharField(max_length=100, blank=True, null=True)
-    wikiDataId = models.CharField(max_length=50, blank=True, null=True)
-
-    def __str__(self):
-        return self.name
-'''
-
-'''
-# get all indonesia https://github.com/yusufsyaifudin/wilayah-indonesia
-class Province(models.Model):
-    id = models.CharField(max_length=10, primary_key=True)
-    name = models.CharField(max_length=100)
-    alt_name = models.CharField(max_length=100, blank=True, null=True)
-    latitude = models.DecimalField(max_digits=9, decimal_places=6)
-    longitude = models.DecimalField(max_digits=9, decimal_places=6)
-
-    def __str__(self):
-        return self.name
-    
-class Regency(models.Model):
-    id = models.CharField(max_length=10, primary_key=True)
-    province = models.ForeignKey(Province, on_delete=models.CASCADE, related_name='regencies')
-    name = models.CharField(max_length=100)
-    alt_name = models.CharField(max_length=100, blank=True, null=True)
-    latitude = models.DecimalField(max_digits=9, decimal_places=6)
-    longitude = models.DecimalField(max_digits=9, decimal_places=6)
-
-    def __str__(self):
-        return self.name
-    
-class District(models.Model):
-    id = models.CharField(max_length=10, primary_key=True)
-    regency = models.ForeignKey(Regency, on_delete=models.CASCADE, related_name='districts')
-    name = models.CharField(max_length=100)
-    alt_name = models.CharField(max_length=255, blank=True, null=True)
-    latitude = models.DecimalField(max_digits=9, decimal_places=6, blank=True, null=True)
-    longitude = models.DecimalField(max_digits=9, decimal_places=6, blank=True, null=True)
-
-    def __str__(self):
-        return self.name
-    
-class Village(models.Model):
-    id = models.CharField(max_length=10, primary_key=True)
-    district = models.ForeignKey(District, on_delete=models.CASCADE, related_name='districts')
-    name = models.CharField(max_length=100)
-    latitude = models.DecimalField(max_digits=9, decimal_places=6, blank=True, null=True)
-    longitude = models.DecimalField(max_digits=9, decimal_places=6, blank=True, null=True)
-
-    def __str__(self):
-        return self.name'''
-
 class Provinsi(models.Model):
     name = models.CharField(max_length=255, unique=True)
     id_code = models.CharField(max_length=20, unique=True)
@@ -149,7 +42,8 @@ class KelurahanDesa(models.Model):
 
 
 class Warehouse(models.Model):
-    code = models.CharField(max_length=20, unique=True)  # unique=True memastikan bahwa tidak ada dua entri
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)  # Unique identifier
+    code = models.CharField(max_length=20)  # unique=True memastikan bahwa tidak ada dua entri
     name = models.CharField(max_length=255) 
     location = models.CharField(max_length=255)
     capacity = models.PositiveIntegerField(blank=True, null=True) # Kapasitas maksimum warehouse
@@ -205,15 +99,23 @@ class Warehouse(models.Model):
         null=True    # Set to False if the postal code cannot be null
     )
     '''
+    def clean(self):
+        # Jika active True, periksa apakah code sudah ada
+        if self.active:
+            if Warehouse.objects.exclude(pk=self.pk).filter(code=self.code, active=True).exists():
+                raise ValidationError(f'The code "{self.code}" must be unique when active.')
+
     def __str__(self):
         return self.name
     
 
 class Area(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)  # Unique identifier
     warehouse = models.ForeignKey(Warehouse, on_delete=models.CASCADE, related_name='areas')
     area_name = models.CharField(max_length=255)  # Nama area di dalam warehouse
-    capacity = models.PositiveIntegerField()  # Kapasitas maksimum area
+    capacity = models.PositiveIntegerField(blank=True, null=True)  # Kapasitas maksimum area
     current_inventory = models.PositiveIntegerField(default=0)  # Jumlah inventaris saat ini di area ini
+    active = models.BooleanField(default=True)
 
     def __str__(self):
         return f"{self.area_name} ({self.warehouse.name})"

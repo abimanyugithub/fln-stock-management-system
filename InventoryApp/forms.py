@@ -49,7 +49,7 @@ class WarehouseForm(forms.ModelForm):
             'district',
             'village',
             'phone_number',
-            'email'
+            'email',
         ]
 
         labels = {
@@ -79,6 +79,7 @@ class WarehouseForm(forms.ModelForm):
             'village': 'Select the village.',
             'phone_number': 'Enter a contact phone number for the warehouse (optional).',
             'email': 'Enter a contact email address for the warehouse (optional).',
+            'active': 'Check this box if this warehouse is active.'
         }
 
     def __init__(self, *args, **kwargs):
