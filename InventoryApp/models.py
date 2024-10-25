@@ -45,7 +45,7 @@ class Warehouse(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)  # Unique identifier
     code = models.CharField(max_length=20)  # unique=True memastikan bahwa tidak ada dua entri
     name = models.CharField(max_length=255) 
-    location = models.CharField(max_length=255)
+    zone = models.CharField(max_length=255)
     capacity = models.PositiveIntegerField(blank=True, null=True) # Kapasitas maksimum warehouse
     manager = models.CharField(max_length=255, blank=True, null=True)  # Nama manajer gudang
     current_inventory = models.PositiveIntegerField(default=0)  # Jumlah inventaris saat ini

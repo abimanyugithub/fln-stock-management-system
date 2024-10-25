@@ -18,6 +18,7 @@ class WarehouseListView(ListView):
     model = Warehouse
     template_name = 'warehouse/list_warehouse.html'
     context_object_name = 'list_warehouse'
+    ordering = ['code']
 
     def get_context_data(self, **kwargs):
         # Memanggil implementasi dasar untuk mendapatkan context yang ada
@@ -26,7 +27,7 @@ class WarehouseListView(ListView):
         context['fields'] = {
             'code': 'Warehouse Code',
             'name': 'Warehouse Name',
-            'location': 'Location',
+            'zone': 'Zone',
             'phone_number': 'Phone Number',
             'email': 'Email Address',
             'manager': 'Manager'}
@@ -65,8 +66,17 @@ class WarehouseCreateView(CreateView):
     success_url = reverse_lazy('warehouse_list')  # Ganti dengan URL setelah sukses
 
     def form_valid(self, form):
-        # Tambahkan logika tambahan jika perlu
-        return super().form_valid(form)
+        # Call the parent class's form_valid method to save the warehouse
+        response = super().form_valid(form)  
+        
+        # Get the name of the newly created warehouse
+        warehouse_code = form.cleaned_data['code']  # Assuming 'code' is the field name in your form
+        warehouse_name = form.cleaned_data['name']  # Assuming 'name' is the field name in your form
+        
+        # Add a success message including the warehouse name and code
+        messages.success(self.request, f'Warehouse "{warehouse_name}" (Code: {warehouse_code}) created successfully!')
+
+        return response
     
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -100,9 +110,17 @@ class WarehouseUpdateView(UpdateView):
         return form
 
     def form_valid(self, form):
-        # Tambahkan logika tambahan jika perlu
-        messages.success(self.request, "The item has been created and is active!")
-        return super().form_valid(form)
+        # Call the parent class's form_valid method to update the warehouse
+        response = super().form_valid(form)
+
+        # Get the updated name and code of the warehouse
+        warehouse_code = form.cleaned_data['code']  # Assuming 'code' is the field name in your form
+        warehouse_name = form.cleaned_data['name']  # Assuming 'name' is the field name in your form
+        
+        # Add a success message including the updated warehouse name and code
+        messages.success(self.request, f'Warehouse "{warehouse_name}" (Code: {warehouse_code}) updated successfully!')
+
+        return response
     
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)

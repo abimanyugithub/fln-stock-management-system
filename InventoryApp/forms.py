@@ -39,7 +39,7 @@ class WarehouseForm(forms.ModelForm):
         fields = [
             'code',
             'name',
-            'location',
+            'zone',
             'capacity',
             'manager',
             'address_line1',
@@ -55,7 +55,7 @@ class WarehouseForm(forms.ModelForm):
         labels = {
             'code': 'Warehouse Code *',
             'name': 'Warehouse Name *',
-            'location': 'Location *',
+            'zone': 'Zone *',
             'address_line1': 'Address Line 1',
             'address_line2': 'Address Line 2',
             'phone_number': 'Phone Number',
@@ -69,7 +69,7 @@ class WarehouseForm(forms.ModelForm):
         help_texts = {
             'code': 'A unique code for this warehouse (up to 20 characters).',
             'name': 'Enter the full name of the warehouse.',
-            'location': 'Provide a general description of the location within or near the warehouse, e.g., "Zone A".',
+            'zone': 'Provide a general description of the zone within or near the warehouse, e.g., "Zone A".',
             'capacity': 'Enter the maximum storage capacity of this warehouse, e.g., in cubic meters (m³) (optional).',
             'manager': 'Enter the full name of the warehouse manager (optional).',
             'address_line1': 'Enter the primary street address (optional).',
