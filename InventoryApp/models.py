@@ -10,6 +10,9 @@ class Provinsi(models.Model):
 
     def __str__(self):
         return self.name
+    
+    class Meta:
+        ordering = ['name']
 
 
 class KabupatenKota(models.Model):
@@ -20,6 +23,9 @@ class KabupatenKota(models.Model):
 
     def __str__(self):
         return self.name
+    
+    class Meta:
+        ordering = ['name']
 
 
 class Kecamatan(models.Model):
@@ -30,6 +36,9 @@ class Kecamatan(models.Model):
     def __str__(self):
         return self.name
     
+    class Meta:
+        ordering = ['name']
+    
 
 class KelurahanDesa(models.Model):
     kecamatan = models.ForeignKey(Kecamatan, on_delete=models.CASCADE, related_name='kelurahan_desa')
@@ -39,6 +48,9 @@ class KelurahanDesa(models.Model):
 
     def __str__(self):
         return self.name
+    
+    class Meta:
+        ordering = ['name']
 
 
 class Warehouse(models.Model):
@@ -106,7 +118,11 @@ class Warehouse(models.Model):
                 raise ValidationError(f'The code "{self.code}" must be unique when active.')
 
     def __str__(self):
-        return self.name
+        return f"{self.code} ({self.name})"
+    
+
+    class Meta:
+        ordering = ['code']
     
 
 class Area(models.Model):
@@ -120,6 +136,9 @@ class Area(models.Model):
     def __str__(self):
         return f"{self.area_name} ({self.warehouse.name})"
     
+    class Meta:
+        ordering = ['area_name']
+
 
 class Location(models.Model):
     area = models.ForeignKey(Area, on_delete=models.CASCADE, related_name='locations')
@@ -130,3 +149,32 @@ class Location(models.Model):
 
     def __str__(self):
         return f"{self.location_name} ({self.area.area_name})"
+    
+    
+class Category(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)  # Unique identifier
+    name = models.CharField(max_length=100)
+    description = models.TextField(blank=True, null=True)
+
+    def __str__(self):
+        return self.name
+    
+    class Meta:
+        ordering = ['name']
+
+class Product(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)  # Unique identifier
+    code = models.CharField(max_length=20)
+    name = models.CharField(max_length=255)
+    description = models.TextField(blank=True, null=True)
+    # price = models.DecimalField(max_digits=10, decimal_places=2)
+    # stock_quantity = models.PositiveIntegerField(default=0)
+    category = models.ForeignKey(Category, on_delete=models.CASCADE, related_name='categories')
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    def __str__(self):
+        return self.name
+    
+    class Meta:
+        ordering = ['code']

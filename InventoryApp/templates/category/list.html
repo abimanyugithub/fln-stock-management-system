@@ -32,15 +32,14 @@
           <div class="col-md-12 col-sm-12 col-xs-12">
             <div class="x_panel">
               <div class="x_title">
-                <h2>Warehouse<small>List</small></h2>
+                <h2>Category<small>List</small></h2>
                 <ul class="nav navbar-right panel_toolbox">
                 <li><a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
                 </li>
                 <li class="dropdown">
                     <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false"><i class="fa fa-wrench"></i></a>
                     <ul class="dropdown-menu" role="menu">
-                    <li><a href="{% url 'warehouse_create' %}">Create New</a>
-                    </li>
+                      <li><a href="{% url 'category_create' %}">Create New</a></li>
                     </ul>
                 </li>
                 <li><a class="close-link"><i class="fa fa-close"></i></a>
@@ -63,14 +62,14 @@
                     </tr>
                   </thead>
                   <tbody>
-                    {% for item in list_warehouse %}
+                    {% for item in list_item %}
                     <tr>
                       <td>{{ forloop.counter }}</td>
                       {% for field in fields %}
                         <td>{{ item|get_field_value:field }}</td>
                       {% endfor %}
                       <td>
-                        <a class="btn btn-info btn-sm ml-2" href="{% url 'warehouse_update' pk=item.id %}"><i class="fa fa-pencil"></i> Edit </a>
+                        <a class="btn btn-info btn-sm ml-2" href="{% url 'category_update' pk=item.id %}"><i class="fa fa-pencil"></i> Edit </a>
                         <form action="" method="post" style="display:inline;">
                             {% csrf_token %}
                             <button class="btn btn-danger btn-sm {{ obj.button_class }}" type="submit"><i class="fa {{ obj.bi_icon }}"></i><i class="fa fa-trash-o"></i> Delete </button>
