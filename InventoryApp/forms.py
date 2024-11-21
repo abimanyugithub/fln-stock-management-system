@@ -150,23 +150,26 @@ class CategoryForm(forms.ModelForm):
 class ProductForm(forms.ModelForm):
     class Meta:
         model = Product
-        fields = ['category', 'code', 'name', 'description']  # Include other fields if needed
+        fields = ['sku', 'name', 'description']  # Include other fields if needed
 
         labels = {
-            'code': 'Product Code *',
+            'sku': 'Product Code *',
             'name': 'Product Name *',
         }
 
         widgets = {
-            'code': forms.TextInput(attrs={'class': 'form-control col-md-7 col-xs-12'}),
+            'sku': forms.TextInput(attrs={'class': 'form-control col-md-7 col-xs-12'}),
             'name': forms.TextInput(attrs={'class': 'form-control col-md-7 col-xs-12'}),
             'description': forms.Textarea(attrs={'class': 'form-control col-md-7 col-xs-12'}),
-            'category': forms.Select(attrs={'class': 'form-control col-md-7 col-xs-12'}),
+            # 'category': forms.Select(attrs={'class': 'form-control col-md-7 col-xs-12'}),
         }
 
         help_texts = {
-            'category': 'Select the product category.',
-            'code': 'Enter the unique product code (maximum 20 characters).',
-            'name': 'Enter the product name (maximum 255 characters).',
-            'description': 'Provide a detailed description of the product (optional).'
+            # 'category': 'Select the product category.',
+            'name': 'The name of the product being added.',
+            'description': 'A detailed description of the product (optional).',
+            'price': 'The price of the product. Leave blank if unknown.',
+            'stock_quantity': 'The number of items available in stock.',
+            'suppliers': 'Select the suppliers that provide this product.',
+            'sku': 'A unique code for the product. It will be generated automatically if left blank.'
         }
