@@ -1,7 +1,7 @@
 from django import forms
 # from .models import Warehouse, Area, Country, State, City
 # from .models import Province, Regency, District, Village, Warehouse, Area
-from .models import Provinsi, KabupatenKota, Kecamatan, KelurahanDesa, Warehouse, Area, Category, Product
+from .models import Provinsi, KabupatenKota, Kecamatan, KelurahanDesa, Warehouse, Area, Category, Product, UOM, ProductType
 
 class WarehouseForm(forms.ModelForm):
 
@@ -120,6 +120,63 @@ class AreaForm(forms.ModelForm):
         self.fields['warehouse'].queryset = Warehouse.objects.all().order_by('code')
 
 
+class UOMForm(forms.ModelForm):
+    class Meta:
+        model = UOM
+        fields = [
+            'name',
+            'code',
+            'description',
+        ]
+        widgets = {
+            'name': forms.TextInput(attrs={'class': 'form-control col-md-7 col-xs-12'}),
+            'code': forms.TextInput(attrs={'class': 'form-control col-md-7 col-xs-12'}),
+            'description': forms.Textarea(attrs={'class': 'form-control col-md-7 col-xs-12'}),
+        }
+
+        help_texts = {
+            'name': 'Enter the name of the unit of measurement (e.g., Kilogram, Liter, Meter). This should be unique.',
+            'description': 'Provide a detailed description of the unit of measurement (optional). This can include the usage or details about the unit.',
+            'code': 'Enter the unit’s code (e.g., kg for kilogram, l for liter). This will be used for shorthand representation.',
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        
+        # Iterate through each field and set widget attributes
+        for field_name, field in self.fields.items():
+            # Set autocomplete="off" for each field's widget
+            field.widget.attrs.update({'autocomplete': 'off'})
+
+class ProductTypeForm(forms.ModelForm):
+    class Meta:
+        model = ProductType
+        fields = [
+            'name',
+            'code',
+            'description',
+        ]
+        widgets = {
+            'name': forms.TextInput(attrs={'class': 'form-control col-md-7 col-xs-12'}),
+            'code': forms.TextInput(attrs={'class': 'form-control col-md-7 col-xs-12'}),
+            'description': forms.Textarea(attrs={'class': 'form-control col-md-7 col-xs-12'}),
+        }
+
+        help_texts = {
+            'name': 'Enter a unique name for the product type (e.g., Raw Materials, Finished Goods).',
+            'code': 'Enter a code for the product type (e.g., "RM" for Raw Materials, "FG" for Finished Goods)',
+            'description': 'Provide an optional description of the product type.',
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        
+        # Iterate through each field and set widget attributes
+        for field_name, field in self.fields.items():
+            # Set autocomplete="off" for each field's widget
+            field.widget.attrs.update({'autocomplete': 'off'})
+
+
 class CategoryForm(forms.ModelForm):
 
     class Meta:
@@ -150,26 +207,33 @@ class CategoryForm(forms.ModelForm):
 class ProductForm(forms.ModelForm):
     class Meta:
         model = Product
-        fields = ['sku', 'name', 'description']  # Include other fields if needed
+        fields = ['sku', 'name', 'product_type', 'category', 'uom', 'description']  # Include other fields if needed
 
         labels = {
-            'sku': 'Product Code *',
-            'name': 'Product Name *',
+            'sku': 'Code *',
+            'name': 'Name *',
+            'category': 'Category *',
+            'product_type': 'Product Type *',
+            'uom': 'UOM *'
         }
 
         widgets = {
             'sku': forms.TextInput(attrs={'class': 'form-control col-md-7 col-xs-12'}),
             'name': forms.TextInput(attrs={'class': 'form-control col-md-7 col-xs-12'}),
             'description': forms.Textarea(attrs={'class': 'form-control col-md-7 col-xs-12'}),
-            # 'category': forms.Select(attrs={'class': 'form-control col-md-7 col-xs-12'}),
+            'product_type': forms.Select(attrs={'class': 'form-control col-md-7 col-xs-12'}),
+            'uom': forms.Select(attrs={'class': 'form-control col-md-7 col-xs-12'}),
+            'category': forms.Select(attrs={'class': 'form-control col-md-7 col-xs-12'}),
         }
 
         help_texts = {
-            # 'category': 'Select the product category.',
+            'category': 'Select the product category.',
             'name': 'The name of the product being added.',
             'description': 'A detailed description of the product (optional).',
-            'price': 'The price of the product. Leave blank if unknown.',
-            'stock_quantity': 'The number of items available in stock.',
+            # 'price': 'The price of the product. Leave blank if unknown.',
+            # 'stock_quantity': 'The number of items available in stock.',
+            'uom': 'Select the unit of measurement for this product.',
+            'product_type': 'Choose the type of product.',
             'suppliers': 'Select the suppliers that provide this product.',
             'sku': 'A unique code for the product. It will be generated automatically if left blank.'
         }

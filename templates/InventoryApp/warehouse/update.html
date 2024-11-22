@@ -1,0 +1,181 @@
+{% extends "../base_site.html" %}
+{% load static %}
+{% block title %} General Elements {% endblock title %}
+
+{% block stylesheets %}
+  {{ block.super }}
+  <link href="/static/vendors/pnotify/dist/pnotify.css" rel="stylesheet">
+  <link href="/static/vendors/pnotify/dist/pnotify.buttons.css" rel="stylesheet">
+  <link href="/static/vendors/pnotify/dist/pnotify.nonblock.css" rel="stylesheet">
+{% endblock stylesheets %}
+
+{% block content %}
+  <div class="right_col" role="main">
+    <div class="">
+      <div class="page-title">
+        <div class="title_left">
+          <h3>Master Data</h3>
+        </div>
+
+        <div class="title_right">
+          <div class="col-md-5 col-sm-5 col-xs-12 form-group pull-right top_search">
+            <div class="input-group">
+              <input type="text" class="form-control" placeholder="Search for...">
+              <span class="input-group-btn">
+                <button class="btn btn-default" type="button">Go!</button>
+              </span>
+            </div>
+          </div>
+        </div>
+        <div class="clearfix"></div>
+        <div class="row">
+          <div class="col-md-12 col-sm-12 col-xs-12">
+            <div class="x_panel">
+              <div class="x_title">
+                <h2>Warehouse<small>Update</small></h2>
+                <ul class="nav navbar-right panel_toolbox">
+                <li><a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
+                </li>
+                <li class="dropdown">
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false"><i class="fa fa-wrench"></i></a>
+                    <ul class="dropdown-menu" role="menu">
+                    <li><a href="{% url 'warehouse_create' %}">Create New</a>
+                    </li>
+                    </ul>
+                </li>
+                <li><a class="close-link"><i class="fa fa-close"></i></a>
+                </li>
+                </ul>
+                <div class="clearfix"></div>
+              </div>
+              <div class="x_content">
+                <form method="post" data-parsley-validate class="form-horizontal control-label"> 
+                  {% csrf_token %}
+                  <div class="row">
+                    <div class="col-md-6 col-sm-6 col-xs-12">
+                    {% for field in form %}
+                      {% if forloop.counter0|divisibleby:7 and not forloop.first %}
+                        <!-- Start a new column for every second field -->
+                        </div>
+                        <div class="col-md-6 col-sm-6 col-xs-12">
+                      {% endif %}
+                      <div class="form-group">
+                        {% if field.name not in disable_fields %}
+                          {{ field.label_tag }}
+                          {{ field }}
+                        {% endif %}
+                        {% if field.name == 'province' %}
+                          {{ field.label_tag }}
+                          <select class="form-control" 
+                            id="{{ form.province.id_for_label }}" 
+                            name="{{ field.name }}"
+                            hx-get="{% url 'get_kabupaten_kota' %}" 
+                            hx-target="#regency-dropdown" 
+                            hx-trigger="change" required>
+                            <option value="">Select Province</option>
+                            {% for provinsi in form.province.field.queryset %}
+                              <option value="{{ provinsi.id }}" {% if provinsi.id == form.instance.province.id %}selected{% endif %}>{{ provinsi.name }}</option>
+                            {% endfor %}
+                          </select>
+                        {% elif field.name == 'regency' %}
+                        {{ field.label_tag }}
+                          <select class="form-control" id="regency-dropdown" name="{{ field.name }}" 
+                            hx-get="{% url 'get_kecamatan' %}" 
+                            hx-target="#district-dropdown" 
+                            hx-trigger="change" required>
+                            <option value="">Select Regency/City</option>
+                            {% for regency in form.regency.field.queryset %}
+                              <option value="{{ regency.id }}" {% if regency.id == form.instance.regency.id %}selected{% endif %}>
+                                {{ regency.name }}
+                              </option>
+                            {% endfor %}
+                        <!-- Options akan diisi oleh HTMX -->
+                          </select>
+                        {% elif field.name == 'district' %}
+                        {{ field.label_tag }}
+                          <select class="form-control" id="district-dropdown" name="{{ field.name }}" 
+                            hx-get="{% url 'get_kelurahan_desa' %}" 
+                            hx-target="#village-dropdown" 
+                            hx-trigger="change" required>
+                            <option value="">Select District</option>
+                            {% for district in form.district.field.queryset %}
+                              <option value="{{ district.id }}" {% if district.id == form.instance.district.id %}selected{% endif %}>
+                                {{ district.name }}
+                              </option>
+                            {% endfor %}
+                            <!-- Options akan diisi oleh HTMX -->
+                          </select>
+                        {% elif field.name == 'village' %}
+                        {{ field.label_tag }}
+                          <select class="form-control" id="village-dropdown" name="{{ field.name }}" required>
+                            <option value="">Select Village/Subdistrict</option>
+                            {% for village in form.village.field.queryset %}
+                              <option value="{{ village.id }}" {% if village.id == form.instance.village.id %}selected{% endif %}>
+                                {{ village.name }}
+                              </option>
+                            {% endfor %}
+                            <!-- Options akan diisi oleh HTMX -->
+                          </select>
+                        {% endif %}
+                        {% if field.help_text %}
+                          <small>{{ field.help_text }}</small>
+                        {% endif %}
+                      </div>
+                    {% endfor %}
+                    </div>
+                  </div>
+
+                  <!-- Place the visual separator where needed -->
+                  <div class="ln_solid"></div>
+                  <div class="form-group">
+                    <!-- <div class="col-md-6 col-sm-6 col-xs-12 custom-offset-1-5"> -->
+                      <button class="btn btn-primary" type="reset">Reset</button>
+                      <button type="submit" class="btn btn-success" name="submit_warehouse_form">Submit</button>
+                    <!-- </div> -->
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+</div>
+{% endblock content %}
+
+{% block javascripts %}
+  {{ block.super }}
+  {% include "../javascript.html" %}
+  <script>
+    // Mengupdate target untuk kabupaten/kota dan kecamatan saat dipilih
+    document.getElementById('province').addEventListener('change', function() {
+        var provinceId = this.value;
+        if (provinceId) {
+            var url = '/kabupaten-kota/' + provinceId + '/';
+            this.setAttribute('hx-get', url);
+        } else {
+            this.removeAttribute('hx-get');
+        }
+    });
+
+    document.getElementById('regency').addEventListener('change', function() {
+        var regencyId = this.value;
+        if (regencyId) {
+            var url = '/kecamatan/' + regencyId + '/';
+            this.setAttribute('hx-get', url);
+        } else {
+            this.removeAttribute('hx-get');
+        }
+    });
+
+    document.getElementById('district').addEventListener('change', function() {
+        var districtId = this.value;
+        if (districtId) {
+            var url = '/kelurahan-desa/' + districtId + '/';
+            this.setAttribute('hx-get', url);
+        } else {
+            this.removeAttribute('hx-get');
+        }
+    });
+</script>
+{% endblock javascripts %}

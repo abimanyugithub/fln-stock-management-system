@@ -2,6 +2,8 @@ import uuid
 from django.db import models
 from django.core.validators import RegexValidator
 from django.forms import ValidationError
+import random
+import string
 
 # Create your models here.
 class Provinsi(models.Model):
@@ -155,6 +157,8 @@ class Category(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)  # Unique identifier
     name = models.CharField(max_length=100)
     description = models.TextField(blank=True, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
         return self.name
@@ -195,17 +199,53 @@ class Supplier(models.Model):
         return self.name
 
 
+class UOM(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    name = models.CharField(max_length=50, unique=True)
+    code = models.CharField(max_length=10)  # For example, kg, l, m
+    description = models.TextField(blank=True, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"{self.code} ({self.name})"
+    
+    
+class ProductType(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    name = models.CharField(max_length=100, unique=True) 
+    code = models.CharField(max_length=10)
+    description = models.TextField(blank=True, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"{self.code} ({self.name})"
+
+
 class Product(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)  # Unique identifier
     name = models.CharField(max_length=255)
     description = models.TextField(blank=True, null=True)
-    price = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
+    # price = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
     stock_quantity = models.PositiveIntegerField(default=0)
-    suppliers = models.ManyToManyField(Supplier, related_name='products')  # Many-to-many relationship
-    sku = models.CharField(max_length=100, unique=True)
+    # suppliers = models.ManyToManyField(Supplier, related_name='products')  # Many-to-many relationship
+    uom = models.ForeignKey(UOM, on_delete=models.CASCADE, related_name='products')
+    product_type = models.ForeignKey(ProductType, on_delete=models.CASCADE, related_name='products')
+    sku = models.CharField(max_length=100, unique=True, blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-    category = models.ForeignKey(Category, on_delete=models.CASCADE, related_name='categories')
+    category = models.ForeignKey(Category, on_delete=models.CASCADE, related_name='products')
+
+    def generate_sku(self):
+        """Generate a random SKU string of length 10 (you can adjust this length)."""
+        return ''.join(random.choices('0123456789', k=10))  # Menghasilkan angka acak
+
+    def save(self, *args, **kwargs):
+        if not self.sku:  # Jika SKU tidak diisi, maka akan digenerate
+            self.sku = self.generate_sku()
+
+        super(Product, self).save(*args, **kwargs)
 
     def __str__(self):
         return self.name

@@ -2,20 +2,20 @@ from django.http import HttpResponse, JsonResponse
 from django.shortcuts import redirect, render
 from django.urls import reverse_lazy
 from django.views.generic import TemplateView, ListView, CreateView, UpdateView
-from .models import Warehouse, Area, Category, Product
+from .models import Warehouse, Area, Category, Product, UOM, ProductType
 # from .forms import Country, State, WarehouseForm, AreaForm  # Import your form if needed
 # from .forms import Province, Regency, District, Village, WarehouseForm, AreaForm
-from .forms import Provinsi, KabupatenKota, Kecamatan, KelurahanDesa, WarehouseForm, AreaForm, CategoryForm, ProductForm
+from .forms import Provinsi, KabupatenKota, Kecamatan, KelurahanDesa, WarehouseForm, AreaForm, CategoryForm, ProductForm, UOMForm, ProductTypeForm
 from django.contrib import messages
 
 # Create your views here.
 class Dashboard(TemplateView):
-    template_name = 'index.html'
+    template_name = 'InventoryApp/index.html'
 
 
 class WarehouseListView(ListView):
     model = Warehouse
-    template_name = 'warehouse/list.html'
+    template_name = 'InventoryApp/warehouse/list.html'
     context_object_name = 'list_item'
     ordering = ['code']
 
@@ -29,7 +29,15 @@ class WarehouseListView(ListView):
             'zone': 'Zone',
             'phone_number': 'Phone Number',
             'email': 'Email Address',
-            'manager': 'Manager'}
+            'manager': 'Manager'
+        }
+
+        context['breadcrumb'] = [
+            {'name': 'Home', 'url': 'dashboard_view'},
+            {'name': 'Warehouse', 'url': 'warehouse_list'},
+            {'name': 'List', 'url': None}  # No URL for the last breadcrumb item
+        ]
+
         return context
     
     
@@ -61,7 +69,7 @@ def get_kelurahan_desa(request):
 class WarehouseCreateView(CreateView):
     model = Warehouse
     form_class = WarehouseForm
-    template_name = 'warehouse/create.html'
+    template_name = 'InventoryApp/warehouse/create.html'
     success_url = reverse_lazy('warehouse_list')  # Ganti dengan URL setelah sukses
 
     def form_valid(self, form):
@@ -87,7 +95,7 @@ class WarehouseCreateView(CreateView):
 class WarehouseUpdateView(UpdateView):
     model = Warehouse
     form_class = WarehouseForm
-    template_name = 'warehouse/update.html'
+    template_name = 'InventoryApp/warehouse/update.html'
     success_url = reverse_lazy('warehouse_list')  # Ganti dengan URL setelah sukses
     context_object_name = 'warehouse'
 
@@ -160,6 +168,87 @@ class AreaUpdateView(UpdateView):
     template_name = 'area/create_or_update.html'
     success_url = reverse_lazy('area_list')
 
+class UOMCreateView(CreateView):
+    model = UOM
+    form_class = UOMForm 
+    template_name = 'InventoryApp/uom/create_or_update.html'
+    success_url = reverse_lazy('uom_list')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['action'] = 'create'
+        return context
+
+
+class UOMUpdateView(UpdateView):
+    model = UOM
+    form_class = UOMForm 
+    template_name = 'InventoryApp/uom/create_or_update.html'
+    success_url = reverse_lazy('uom_list')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['action'] = 'update'
+        return context
+
+
+class UOMListView(ListView):
+    model = UOM
+    template_name = 'InventoryApp/uom/list.html'
+    context_object_name = 'list_item'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        context['fields'] = {
+            'name': 'Name',
+            'code': 'Code',
+            'description': 'Description',
+            }
+        return context
+    
+
+class ProductTypeCreateView(CreateView):
+    model = ProductType
+    form_class = ProductTypeForm 
+    template_name = 'product_type/create_or_update.html'
+    success_url = reverse_lazy('type_list')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['action'] = 'create'
+        return context
+
+
+class ProductTypeUpdateView(UpdateView):
+    model = ProductType
+    form_class = ProductTypeForm 
+    template_name = 'product_type/create_or_update.html'
+    success_url = reverse_lazy('type_list')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['action'] = 'update'
+        return context
+
+
+class ProductTypeListView(ListView):
+    model = ProductType
+    template_name = 'product_type/list.html'
+    context_object_name = 'list_item'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        context['fields'] = {
+            'name': 'Name',
+            'code': 'Code',
+            'description': 'Description',
+            'created_at': 'Registered Date',
+            'updated_at': 'Updated Date'
+            }
+        return context
+
 
 class CategoryCreateView(CreateView):
     model = Category
@@ -186,6 +275,8 @@ class CategoryListView(ListView):
         context['fields'] = {
             'name': 'Category Name',
             'description': 'Description',
+            'created_at': 'Registered Date',
+            'updated_at': 'Updated Date'
             }
         return context
 
@@ -215,10 +306,12 @@ class ProductListView(ListView):
         
         # Menambahkan header tabel dinamis ke dalam context
         context['fields'] = {
-            'code': 'Product Code',
-            'name': 'Product Name',
-            'description': 'Description',
+            'sku': 'Code',
+            'name': 'Name',
             'category': 'Category',
+            'uom': 'Unit',
+            'product_type': 'Type',
+            # 'description': 'Description',
             'created_at': 'Registered Date',
             'updated_at': 'Updated Date'
             }
